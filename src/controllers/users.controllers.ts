@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import databaseService from '@/services/database.services';
 import User from '@/models/schemas/User.schemas';
 import usersService from '@/services/users.services';
@@ -23,14 +23,9 @@ export const login = (req: Request, res: Response) => {
 
 export const register = async (
   req: Request<ParamsDictionary, any, RegisterReqBody>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
-  const { email, password } = req.body;
-
-  try {
-    const newUser = await usersService.register(req.body);
-    res.json({ message: 'Register Successfully', user: newUser });
-  } catch (error) {
-    res.json({ message: 'Register Failed - ' + error });
-  }
+  const newUser = await usersService.register(req.body);
+  res.json({ message: 'Register Successfully', user: newUser });
 };

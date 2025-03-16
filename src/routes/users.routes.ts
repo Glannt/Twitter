@@ -3,7 +3,7 @@ import { loginValidator } from '../middlewares/users.middlewares';
 import { login } from '../controllers/users.controllers';
 import { register } from '../controllers/users.controllers';
 import { registerValidator } from '../middlewares/users.middlewares';
-import validate from '../utils/validation';
+import wrapRequestHandler from '../utils/handlers';
 const router = Router();
 
 router.get('/', (req, res) => {
@@ -11,6 +11,6 @@ router.get('/', (req, res) => {
 });
 
 router.post('/login', loginValidator, login);
-router.post('/register', validate(registerValidator), register);
+router.post('/register', registerValidator, wrapRequestHandler(register));
 
 export default router;

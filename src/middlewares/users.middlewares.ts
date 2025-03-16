@@ -1,4 +1,5 @@
 import usersService from '@/services/users.services';
+import validate from '@/utils/validation';
 import { Request, Response, NextFunction } from 'express';
 import { checkSchema } from 'express-validator';
 export const loginValidator = (req: Request, res: Response, next: NextFunction) => {
@@ -17,74 +18,76 @@ export const loginValidator = (req: Request, res: Response, next: NextFunction) 
 //   next();
 // };
 
-export const registerValidator = checkSchema({
-  name: {
-    trim: true,
-    notEmpty: true,
-    isLength: {
-      options: { min: 1, max: 100 },
-      errorMessage: 'Name is required',
-    },
-  },
-  email: {
-    trim: true,
-    notEmpty: true,
-    isEmail: true,
-    custom: {
-      options: async (value) => {
-        const isExistEmail = await usersService.checkEmailExist(value);
-        if (isExistEmail) {
-          throw new Error('Email already exists');
-        }
-        return true;
+export const registerValidator = validate(
+  checkSchema({
+    name: {
+      trim: true,
+      notEmpty: true,
+      isLength: {
+        options: { min: 1, max: 100 },
+        errorMessage: 'Name is required',
       },
-      errorMessage: 'Email already exists',
     },
-    errorMessage: 'Invalid email',
-  },
-  password: {
-    trim: true,
-    notEmpty: true,
-    isStrongPassword: {
-      options: {
-        minLength: 8,
-        minLowercase: 1,
-        minUppercase: 1,
-        minNumbers: 1,
-        minSymbols: 1,
+    email: {
+      trim: true,
+      notEmpty: true,
+      isEmail: true,
+      custom: {
+        options: async (value) => {
+          const isExistEmail = await usersService.checkEmailExist(value);
+          if (isExistEmail) {
+            throw new Error('Email already exists');
+          }
+          return true;
+        },
+        errorMessage: 'Email already exists',
       },
-      errorMessage:
-        'Password must be at least 8 characters long, contain at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol',
+      errorMessage: 'Invalid email',
     },
-  },
-  confirm_password: {
-    trim: true,
-    notEmpty: true,
-    isStrongPassword: {
-      options: {
-        minLength: 8,
-        minLowercase: 1,
-        minUppercase: 1,
-        minNumbers: 1,
-        minSymbols: 1,
+    password: {
+      trim: true,
+      notEmpty: true,
+      isStrongPassword: {
+        options: {
+          minLength: 8,
+          minLowercase: 1,
+          minUppercase: 1,
+          minNumbers: 1,
+          minSymbols: 1,
+        },
+        errorMessage:
+          'Password must be at least 8 characters long, contain at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol',
       },
-      errorMessage:
-        'Password must be at least 8 characters long, contain at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol',
     },
-    custom: {
-      options: (value, { req }) => {
-        return value === req.body.password;
+    confirm_password: {
+      trim: true,
+      notEmpty: true,
+      isStrongPassword: {
+        options: {
+          minLength: 8,
+          minLowercase: 1,
+          minUppercase: 1,
+          minNumbers: 1,
+          minSymbols: 1,
+        },
+        errorMessage:
+          'Password must be at least 8 characters long, contain at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol',
       },
-      errorMessage: 'Password not match',
-    },
-  },
-  date_of_birth: {
-    isISO8601: {
-      options: {
-        strict: true,
-        strictSeparator: true,
+      custom: {
+        options: (value, { req }) => {
+          return value === req.body.password;
+        },
+        errorMessage: 'Password not match',
       },
-      errorMessage: 'Invalid date of birth',
     },
-  },
-});
+    date_of_birth: {
+      isISO8601: {
+        options: {
+          strict: true,
+          strictSeparator: true,
+        },
+        errorMessage: 'Invalid date of birth',
+      },
+    },
+  })
+);
